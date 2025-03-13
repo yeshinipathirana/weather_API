@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 20px;
+            color: white;
+        }
+        #weather-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            margin-top: 20px;
+            width: 300px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 200px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #ff758c, #ff7eb3);
+        }
+        #weather-animation {
+            width: 200px;
+            height: 200px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Search</h1>
+    <input type="text" id="city" placeholder="Enter city name">
+    <button onclick="getWeather()">Search</button>
+    
+    <div id="weather-container">
+        <h2 id="weather-city"></h2>
+        <div id="weather-animation"></div>
+        <p id="weather-desc"></p>
+        <p id="weather-temp"></p>
+    </div>
+
+    <script>
+        function getWeather() {
+            let city = document.getElementById('city').value.trim();
+            let apiKey = '5cade1ff2e7e1a1045a0e50a0330d7b0'; // Replace with a valid API key
+            if (!city) {
+                alert("Please enter a city name!");
+                return;
+            }
+
+            let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let condition = data.weather[0].description;
+                    document.getElementById('weather-city').innerText = `City: ${data.name}`;
+                    document.getElementById('weather-desc').innerText = `Weather: ${condition}`;
+                    document.getElementById('weather-temp').innerText = `Temperature: ${data.main.temp}°C`;
+                    displayWeatherAnimation(condition);
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    document.getElementById('weather-city').innerText = 'Error fetching data';
+                    document.getElementById('weather-desc').innerText = '';
+                    document.getElementById('weather-temp').innerText = '';
+                });
+        }
+
+        function displayWeatherAnimation(condition) {
+            let animContainer = document.getElementById("weather-animation");
+            animContainer.innerHTML = ""; // Clear previous animation
+
+            let animationData = "thunder.json"; // Default to thunder animation
+
+            if (condition.includes("rain") || condition.includes("thunder")) {
+                animationData = "thunder.json"; // Use thunder animation
+            } else if (condition.includes("clear")) {
+                animationData = "sunny.json"; // Replace with a sunny animation JSON file
+            }
+
+            lottie.loadAnimation({
+                container: animContainer,
+                renderer: "svg",
+                loop: true,
+                autoplay: true,
+                path: animationData, // Use appropriate JSON animation file
+            });
+        }
+    </script>
+</body>
+</html>
